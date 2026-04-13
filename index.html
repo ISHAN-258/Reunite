@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReUnite — Campus Lost & Found Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+:root {
+  --bg: #0a0f1e;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --border: rgba(255,255,255,0.07);
+  --accent: #00d4aa;
+  --accent2: #7c3aed;
+  --accent-warm: #f59e0b;
+  --text: #f0f4ff;
+  --text-muted: #8892a4;
+  --text-dim: #4a5568;
+  --card-bg: rgba(17,24,39,0.8);
+  --glow: rgba(0,212,170,0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ─── NOISE TEXTURE OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ─── TYPOGRAPHY ─── */
+h1, h2, h3, h4, .display { font-family: 'Syne', sans-serif; }
+
+/* ─── NAVBAR ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 1.2rem 0;
+  transition: all 0.4s ease;
+}
+
+nav.scrolled {
+  background: rgba(10,15,30,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 0;
+}
+
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-logo .dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.7; }
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.nav-links a:hover { color: var(--text); }
+
+.nav-cta {
+  background: var(--accent);
+  color: #0a0f1e !important;
+  padding: 0.6rem 1.4rem;
+  border-radius: 100px;
+  font-weight: 700 !important;
+  transition: all 0.3s ease !important;
+}
+
+.nav-cta:hover {
+  background: #00f0c0 !important;
+  box-shadow: 0 0 30px rgba(0,212,170,0.4);
+  transform: translateY(-1px);
+}
+
+.nav-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 8rem 2rem 4rem;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 50%, rgba(0,212,170,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 20%, rgba(124,58,237,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 50% 90%, rgba(245,158,11,0.04) 0%, transparent 60%);
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 70% 70% at center, black, transparent);
+}
+
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0,212,170,0.1);
+  border: 1px solid rgba(0,212,170,0.25);
+  color: var(--accent);
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.6s ease both;
+}
+
+.hero h1 {
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+
+.hero h1 .accent-text {
+  background: linear-gradient(135deg, var(--accent) 0%, #00a8ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.75;
+  margin-bottom: 2.5rem;
+  font-weight: 300;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  animation: fadeUp 0.6s 0.3s ease both;
+}
+
+.btn-primary-custom {
+  background: var(--accent);
+  color: #0a0f1e;
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.btn-primary-custom:hover {
+  background: #00f0c0;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(0,212,170,0.35);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.9rem 2rem;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.btn-ghost:hover {
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.05);
+  transform: translateY(-2px);
+}
+
+.hero-visual {
+  animation: fadeUp 0.8s 0.2s ease both;
+}
+
+.hero-card-stack {
+  position: relative;
+  height: 420px;
+}
+
+.floating-card {
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.card-main {
+  width: 320px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  background: var(--surface2);
+  border-color: rgba(0,212,170,0.2);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,212,170,0.1);
+  animation: float1 5s ease-in-out infinite;
+}
+
+.card-side-1 {
+  width: 240px;
+  top: 10%;
+  right: 5%;
+  z-index: 2;
+  opacity: 0.7;
+  animation: float2 6s ease-in-out infinite;
+}
+
+.card-side-2 {
+  width: 220px;
+  bottom: 5%;
+  left: 5%;
+  z-index: 2;
+  opacity: 0.6;
+  animation: float3 7s ease-in-out infinite;
+}
+
+@keyframes float1 { 0%,100%{transform:translate(-50%,-50%) translateY(0)} 50%{transform:translate(-50%,-50%) translateY(-12px)} }
+@keyframes float2 { 0%,100%{transform:translateY(0) rotate(3deg)} 50%{transform:translateY(-8px) rotate(3deg)} }
+@keyframes float3 { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-10px) rotate(-2deg)} }
+
+.fc-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 10px;
+  border-radius: 100px;
+  margin-bottom: 0.75rem;
+}
+
+.tag-lost { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+.tag-found { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+.tag-pending { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+
+.fc-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; }
+.fc-loc { color: var(--text-muted); font-size: 0.8rem; display: flex; align-items: center; gap: 4px; }
+.fc-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+
+/* ─── STATS BAND ─── */
+.stats-band {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 2.5rem 2rem;
+}
+
+.stats-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+  position: relative;
+}
+
+.stat-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 20%; bottom: 20%;
+  width: 1px;
+  background: var(--border);
+}
+
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-num span { color: var(--accent); -webkit-text-fill-color: var(--accent); }
+.stat-label { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem; }
+
+/* ─── SECTIONS ─── */
+section { padding: 6rem 2rem; }
+
+.section-inner { max-width: 1200px; margin: 0 auto; }
+
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 1rem;
+}
+
+.section-sub {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  max-width: 550px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* ─── HOW IT WORKS ─── */
+.how-section { background: var(--surface); }
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  position: relative;
+}
+
+.steps-grid::before {
+  content: '';
+  position: absolute;
+  top: 3rem;
+  left: calc(16.66% + 1rem);
+  right: calc(16.66% + 1rem);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.3;
+}
+
+.step-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  position: relative;
+  transition: all 0.4s ease;
+}
+
+.step-card:hover {
+  border-color: rgba(0,212,170,0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,212,170,0.1);
+}
+
+.step-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.step-num::before {
+  content: attr(data-n);
+  width: 36px; height: 36px;
+  background: rgba(0,212,170,0.1);
+  border: 1px solid rgba(0,212,170,0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.step-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.step-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.step-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; }
+
+/* ─── GALLERY ─── */
+.gallery-section { background: var(--bg); }
+
+.gallery-filters {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.5rem 1.25rem;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.filter-btn:hover, .filter-btn.active {
+  background: rgba(0,212,170,0.1);
+  border-color: rgba(0,212,170,0.35);
+  color: var(--accent);
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.item-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.item-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(0,212,170,0.25);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+}
+
+.item-card-header {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  position: relative;
+  background: var(--surface2);
+}
+
+.item-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.item-card-body { padding: 1.5rem; }
+.item-name { font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 0.5rem; }
+.item-meta { color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 4px; }
+.item-meta span { display: flex; align-items: center; gap: 5px; }
+
+.btn-claim {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(0,212,170,0.25);
+  color: var(--accent);
+  padding: 0.7rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+}
+
+.btn-claim:hover {
+  background: rgba(0,212,170,0.1);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* ─── REPORT FORM ─── */
+.report-section {
+  background: linear-gradient(180deg, var(--bg) 0%, var(--surface) 50%, var(--bg) 100%);
+}
+
+.report-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 5rem;
+  align-items: center;
+}
+
+.report-info h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+}
+
+.report-info p { color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem; }
+
+.info-checklist { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+
+.info-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.info-checklist li i {
+  color: var(--accent);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.form-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 2.5rem;
+}
+
+.form-group { margin-bottom: 1.25rem; }
+
+.form-label-custom {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.form-control-custom {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+}
+
+.form-control-custom:focus {
+  border-color: rgba(0,212,170,0.4);
+  background: rgba(0,212,170,0.03);
+  box-shadow: 0 0 0 3px rgba(0,212,170,0.1);
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.form-select-custom {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238892a4' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 16px;
+}
+
+.form-select-custom:focus {
+  border-color: rgba(0,212,170,0.4);
+  box-shadow: 0 0 0 3px rgba(0,212,170,0.1);
+}
+
+.form-select-custom option { background: var(--surface2); }
+
+/* ─── NOTIFICATIONS / ANNOUNCEMENTS ─── */
+.notif-section { background: var(--surface); }
+
+.ticker-wrapper {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  margin-bottom: 3rem;
+}
+
+.ticker-label {
+  background: var(--accent);
+  color: #0a0f1e;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ticker-track {
+  flex: 1;
+  overflow: hidden;
+  padding: 0.6rem 1.5rem;
+  position: relative;
+}
+
+.ticker-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker 30s linear infinite;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.ticker-content:hover { animation-play-state: paused; }
+@keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+.notif-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.notif-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  border-left: 3px solid var(--accent);
+}
+
+.notif-card:hover {
+  border-color: rgba(0,212,170,0.35);
+  border-left-color: var(--accent);
+  transform: translateY(-3px);
+}
+
+.notif-card.warning { border-left-color: var(--accent-warm); }
+.notif-card.info { border-left-color: #60a5fa; }
+
+.notif-time {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.notif-msg { color: var(--text); font-size: 0.92rem; line-height: 1.6; }
+
+/* ─── ABOUT ─── */
+.about-section { background: var(--bg); overflow: hidden; }
+
+.about-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: center;
+}
+
+.about-visual {
+  position: relative;
+}
+
+.about-visual-inner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.about-visual-inner::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 250px; height: 250px;
+  background: radial-gradient(circle, rgba(0,212,170,0.12), transparent 70%);
+  border-radius: 50%;
+}
+
+.mission-stat {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background: var(--bg);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.mission-stat:hover { border-color: rgba(0,212,170,0.25); }
+
+.mission-stat-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.icon-teal { background: rgba(0,212,170,0.1); color: var(--accent); }
+.icon-purple { background: rgba(124,58,237,0.1); color: #a78bfa; }
+.icon-warm { background: rgba(245,158,11,0.1); color: var(--accent-warm); }
+.icon-blue { background: rgba(96,165,250,0.1); color: #60a5fa; }
+
+.mission-stat-label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 2px; }
+.mission-stat-value { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; }
+
+.about-content h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+  line-height: 1.15;
+}
+
+.about-content p { color: var(--text-muted); line-height: 1.8; margin-bottom: 1.5rem; }
+
+.feature-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: all 0.25s;
+}
+
+.pill:hover { border-color: rgba(0,212,170,0.3); color: var(--accent); }
+
+/* ─── FAQ ─── */
+.faq-section { background: var(--surface); }
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faq-item:hover { border-color: rgba(0,212,170,0.2); }
+
+.faq-q {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  gap: 1rem;
+}
+
+.faq-q i { flex-shrink: 0; color: var(--accent); transition: transform 0.3s; font-size: 0.9rem; }
+.faq-item.open .faq-q i { transform: rotate(45deg); }
+
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  padding: 0 1.5rem;
+}
+
+.faq-item.open .faq-a { max-height: 200px; padding: 0 1.5rem 1.25rem; }
+
+/* ─── CONTACT / ENQUIRY ─── */
+.enquiry-section { background: var(--bg); }
+
+.enquiry-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.enquiry-info h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 1rem;
+}
+
+.enquiry-info p { color: var(--text-muted); line-height: 1.7; margin-bottom: 2rem; }
+
+.contact-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.contact-card:hover { border-color: rgba(0,212,170,0.25); transform: translateX(5px); }
+
+.contact-card-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: rgba(0,212,170,0.1);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.contact-card-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px; }
+.contact-card-value { font-weight: 600; font-size: 0.9rem; }
+
+.enquiry-form-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 2.5rem;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem 2rem;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 3rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+
+.footer-brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footer-tagline { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; max-width: 300px; }
+
+.footer-col h4 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.footer-links a:hover { color: var(--accent); }
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-bottom a { color: var(--text-muted); text-decoration: none; }
+.footer-bottom a:hover { color: var(--accent); }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modal-overlay.open { opacity: 1; visibility: visible; }
+
+.modal-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 2.5rem;
+  max-width: 500px;
+  width: 100%;
+  transform: translateY(20px) scale(0.97);
+  transition: all 0.3s ease;
+}
+
+.modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.modal-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; }
+
+.modal-close {
+  width: 36px; height: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.modal-close:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+/* ─── TOAST ─── */
+.toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.toast {
+  background: var(--surface2);
+  border: 1px solid rgba(0,212,170,0.25);
+  border-radius: 14px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  animation: toastIn 0.4s ease;
+  max-width: 350px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.toast i { color: var(--accent); font-size: 1.1rem; }
+
+@keyframes toastIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* ─── SCROLL TO TOP ─── */
+.scroll-top {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  width: 44px; height: 44px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 900;
+  transition: all 0.3s ease;
+  opacity: 0; visibility: hidden;
+  font-size: 1rem;
+}
+
+.scroll-top.show { opacity: 1; visibility: visible; }
+.scroll-top:hover { color: var(--accent); border-color: rgba(0,212,170,0.35); transform: translateY(-3px); }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 992px) {
+  .hero-inner, .report-layout, .about-layout, .enquiry-layout { grid-template-columns: 1fr; gap: 3rem; }
+  .hero-visual { order: -1; }
+  .hero-card-stack { height: 280px; }
+  .card-main { width: 260px; }
+  .card-side-1, .card-side-2 { display: none; }
+  .steps-grid, .notif-grid, .faq-grid { grid-template-columns: 1fr; }
+  .stats-inner { grid-template-columns: repeat(2, 1fr); }
+  .stat-item:nth-child(2)::after, .stat-item:nth-child(4)::after { display: none; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+  .steps-grid::before { display: none; }
+  nav-links { display: none; }
+  .nav-toggle { display: flex; align-items: center; justify-content: center; }
+  .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem 2rem; gap: 1.5rem; }
+  .form-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .stats-inner { grid-template-columns: 1fr 1fr; }
+  .footer-top { grid-template-columns: 1fr; }
+  .footer-bottom { flex-direction: column; text-align: center; }
+  section { padding: 4rem 1.25rem; }
+  .hero { padding: 7rem 1.25rem 3rem; }
+}
+
+/* ─── ACTIVE NAV STATE ─── */
+.nav-links a.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAVBAR ═══════════════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#home" class="nav-logo">
+      ReUnite <span class="dot"></span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home" class="active">Home</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#report">Report</a></li>
+      <li><a href="#announcements">Updates</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#enquiry">Contact</a></li>
+      <li><a href="/Admin/Login" class="nav-cta"><i class="bi bi-shield-lock-fill"></i> Admin</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <i class="bi bi-list"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="bi bi-broadcast-pin"></i> Campus Portal · Live
+      </div>
+      <h1>Your Lost Items,<br><span class="accent-text">Found Again.</span></h1>
+      <p>ReUnite is a smart campus platform that bridges the gap between lost belongings and their owners — fast, secure, and transparent.</p>
+      <div class="hero-actions">
+        <a href="#report" class="btn-primary-custom">
+          <i class="bi bi-plus-circle-fill"></i> Report an Item
+        </a>
+        <a href="#gallery" class="btn-ghost">
+          <i class="bi bi-images"></i> Browse Gallery
+        </a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card-stack">
+        <div class="floating-card card-side-1">
+          <div class="fc-tag tag-found">Found</div>
+          <div class="fc-icon">🎒</div>
+          <div class="fc-title">Blue Backpack</div>
+          <div class="fc-loc"><i class="bi bi-geo-alt-fill"></i> Library Block B</div>
+        </div>
+        <div class="floating-card card-main">
+          <div class="fc-tag tag-lost">Lost</div>
+          <div class="fc-icon">📱</div>
+          <div class="fc-title">OnePlus Nord CE 3</div>
+          <div class="fc-loc"><i class="bi bi-geo-alt-fill"></i> Main Canteen · 2 hrs ago</div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.78rem;color:var(--text-muted);">Reported by Rahul S.</span>
+            <span class="fc-tag tag-pending" style="margin:0">Pending</span>
+          </div>
+        </div>
+        <div class="floating-card card-side-2">
+          <div class="fc-tag tag-found">Reunited ✓</div>
+          <div class="fc-icon">🔑</div>
+          <div class="fc-title">Room Keys</div>
+          <div class="fc-loc"><i class="bi bi-geo-alt-fill"></i> Hostel D Block</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ STATS ═══════════════ -->
+<div class="stats-band reveal">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">248<span>+</span></div>
+      <div class="stat-label">Items Recovered</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">94<span>%</span></div>
+      <div class="stat-label">Recovery Rate</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">1.2<span>k</span></div>
+      <div class="stat-label">Active Users</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">48<span>h</span></div>
+      <div class="stat-label">Avg. Recovery Time</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+<section class="how-section" id="how">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">Process</span>
+      <h2 class="section-title">How ReUnite Works</h2>
+      <p class="section-sub">Three simple steps to get your belongings back — or help someone else recover theirs.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card reveal">
+        <div class="step-num" data-n="01">STEP ONE</div>
+        <span class="step-icon">📝</span>
+        <h3 class="step-title">Report the Item</h3>
+        <p class="step-desc">Submit a detailed report with item name, category, last known location, and your contact details. Takes under 2 minutes.</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num" data-n="02">STEP TWO</div>
+        <span class="step-icon">🔍</span>
+        <h3 class="step-title">Admin Reviews & Lists</h3>
+        <p class="step-desc">Our campus admin team verifies the submission and lists it on the public gallery so it's visible to everyone on campus.</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num" data-n="03">STEP THREE</div>
+        <span class="step-icon">🤝</span>
+        <h3 class="step-title">Claim & Reunite</h3>
+        <p class="step-desc">If you spot your item, use the Enquire button. Admin verifies ownership and coordinates the safe handover. Done!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ GALLERY ═══════════════ -->
+<section class="gallery-section" id="gallery">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">Gallery</span>
+      <h2 class="section-title">Recently Reported Items</h2>
+      <p class="section-sub">Browse the latest lost and found items reported across campus.</p>
+    </div>
+    <div class="gallery-filters reveal">
+      <button class="filter-btn active" onclick="filterItems('all', this)">All Items</button>
+      <button class="filter-btn" onclick="filterItems('lost', this)">Lost</button>
+      <button class="filter-btn" onclick="filterItems('found', this)">Found</button>
+      <button class="filter-btn" onclick="filterItems('electronics', this)">Electronics</button>
+      <button class="filter-btn" onclick="filterItems('accessories', this)">Accessories</button>
+      <button class="filter-btn" onclick="filterItems('academic', this)">Academic</button>
+    </div>
+    <div class="gallery-grid" id="galleryGrid">
+      <!-- Items injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ REPORT FORM ═══════════════ -->
+<section class="report-section" id="report">
+  <div class="section-inner">
+    <div class="report-layout">
+      <div class="report-info reveal">
+        <span class="section-eyebrow">Report</span>
+        <h2>Lost Something?<br>Let's Find It.</h2>
+        <p>Fill out the form and our admin team will list your item immediately. The more details you provide, the higher your chances of recovery.</p>
+        <ul class="info-checklist">
+          <li><i class="bi bi-check-circle-fill"></i> Instant listing after admin review</li>
+          <li><i class="bi bi-check-circle-fill"></i> Campus-wide visibility</li>
+          <li><i class="bi bi-check-circle-fill"></i> Secure owner verification before handover</li>
+          <li><i class="bi bi-check-circle-fill"></i> Real-time status updates</li>
+          <li><i class="bi bi-check-circle-fill"></i> 94% recovery success rate</li>
+        </ul>
+      </div>
+      <div class="form-card reveal">
+        <form onsubmit="handleReportSubmit(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label-custom">Item Name *</label>
+              <input type="text" class="form-control-custom" placeholder="e.g. Dell Laptop, Blue Wallet" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label-custom">Category *</label>
+              <select class="form-select-custom" required>
+                <option value="" disabled selected>Select category</option>
+                <optgroup label="Electronics">
+                  <option>Mobile / Tablet / Laptop</option>
+                  <option>Earbuds / Headphones</option>
+                  <option>Charger / Powerbank</option>
+                </optgroup>
+                <optgroup label="Campus Essentials">
+                  <option>ID Card / Library Card</option>
+                  <option>Keys (Room / Vehicle)</option>
+                  <option>Wallet / Purse</option>
+                </optgroup>
+                <optgroup label="Academic">
+                  <option>Books / Notebooks</option>
+                  <option>Documents / Certificates</option>
+                  <option>Stationery</option>
+                </optgroup>
+                <optgroup label="Personal">
+                  <option>Clothing / Accessories</option>
+                  <option>Eyewear</option>
+                  <option>Water Bottle / Lunchbox</option>
+                  <option>Sports Gear</option>
+                </optgroup>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label-custom">Location Lost *</label>
+            <input type="text" class="form-control-custom" placeholder="e.g. Main Canteen, Block B Library, Parking Area" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label-custom">Your Full Name *</label>
+              <input type="text" class="form-control-custom" placeholder="Full name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label-custom">Mobile Number *</label>
+              <input type="tel" class="form-control-custom" placeholder="+91 98765 43210" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label-custom">Description</label>
+            <textarea class="form-control-custom" rows="3" style="resize:vertical" placeholder="Color, brand, model, any unique identifiers like stickers or scratches..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary-custom" style="width:100%;justify-content:center;margin-top:0.5rem">
+            <i class="bi bi-send-fill"></i> Submit Lost Report
+          </button>
+          <p style="text-align:center;color:var(--text-dim);font-size:0.78rem;margin-top:0.75rem">
+            <i class="bi bi-shield-check" style="color:var(--accent)"></i> Your data is used only for item recovery purposes.
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ ANNOUNCEMENTS ═══════════════ -->
+<section class="notif-section" id="announcements">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">Live Updates</span>
+      <h2 class="section-title">Campus Announcements</h2>
+      <p class="section-sub">Stay updated with the latest lost & found notifications from our admin team.</p>
+    </div>
+    <div class="ticker-wrapper reveal">
+      <div class="ticker-label">
+        <i class="bi bi-broadcast-pin"></i> LIVE
+      </div>
+      <div class="ticker-track">
+        <div class="ticker-content">
+          📢 Black OnePlus Nord found near Main Canteen — Contact admin &nbsp;&nbsp;·&nbsp;&nbsp; 🔑 Hostel C-Block keys recovered — Claim at admin office &nbsp;&nbsp;·&nbsp;&nbsp; 📚 Engineering Notebooks found in Library — See Gallery &nbsp;&nbsp;·&nbsp;&nbsp; 🎒 Blue Wildcraft bag reported lost near Auditorium &nbsp;&nbsp;·&nbsp;&nbsp; 💳 Student ID found at Block B entrance &nbsp;&nbsp;·&nbsp;&nbsp; 📢 Black OnePlus Nord found near Main Canteen — Contact admin &nbsp;&nbsp;·&nbsp;&nbsp; 🔑 Hostel C-Block keys recovered — Claim at admin office &nbsp;&nbsp;·&nbsp;&nbsp; 📚 Engineering Notebooks found in Library — See Gallery
+        </div>
+      </div>
+    </div>
+    <div class="notif-grid">
+      <div class="notif-card reveal">
+        <div class="notif-time"><i class="bi bi-clock"></i> Today, 11:30 AM</div>
+        <div class="notif-msg">📱 A black OnePlus smartphone was found near the Main Canteen seating area. Please contact the admin office with your model proof.</div>
+      </div>
+      <div class="notif-card warning reveal">
+        <div class="notif-time"><i class="bi bi-clock"></i> Yesterday, 3:15 PM</div>
+        <div class="notif-msg">🎒 A blue Wildcraft backpack has been reported lost near the Auditorium gate. If found, please hand it to security.</div>
+      </div>
+      <div class="notif-card info reveal">
+        <div class="notif-time"><i class="bi bi-clock"></i> 2 days ago, 9:00 AM</div>
+        <div class="notif-msg">✅ The Bajaj Activa keys reported missing on Monday have been recovered. Owner has been notified and item is reunited.</div>
+      </div>
+      <div class="notif-card reveal">
+        <div class="notif-time"><i class="bi bi-clock"></i> 2 days ago</div>
+        <div class="notif-msg">💳 A student ID card (MCA dept.) was found at the Block B ground floor entrance. Collect from admin before 5 PM.</div>
+      </div>
+      <div class="notif-card warning reveal">
+        <div class="notif-time"><i class="bi bi-clock"></i> 3 days ago</div>
+        <div class="notif-msg">📢 Campus-wide advisory: Please always carry your belongings securely in the library and canteen areas where items are frequently misplaced.</div>
+      </div>
+      <div class="notif-card info reveal">
+        <div class="notif-time"><i class="bi bi-clock"></i> 4 days ago</div>
+        <div class="notif-msg">📚 A set of MCA semester notebooks was found in the Library 2nd floor. Labeled "Srishty Y." — contact admin to claim.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ ABOUT ═══════════════ -->
+<section class="about-section" id="about">
+  <div class="section-inner">
+    <div class="about-layout">
+      <div class="about-visual reveal">
+        <div class="about-visual-inner">
+          <div class="mission-stat">
+            <div class="mission-stat-icon icon-teal"><i class="bi bi-lightning-charge-fill"></i></div>
+            <div>
+              <div class="mission-stat-label">Our Mission</div>
+              <div class="mission-stat-value">Reconnect People With Belongings</div>
+            </div>
+          </div>
+          <div class="mission-stat">
+            <div class="mission-stat-icon icon-purple"><i class="bi bi-shield-check-fill"></i></div>
+            <div>
+              <div class="mission-stat-label">Admin Verification</div>
+              <div class="mission-stat-value">Every claim is manually verified</div>
+            </div>
+          </div>
+          <div class="mission-stat">
+            <div class="mission-stat-icon icon-warm"><i class="bi bi-globe-americas"></i></div>
+            <div>
+              <div class="mission-stat-label">Platform</div>
+              <div class="mission-stat-value">Campus-wide digital ecosystem</div>
+            </div>
+          </div>
+          <div class="mission-stat">
+            <div class="mission-stat-icon icon-blue"><i class="bi bi-people-fill"></i></div>
+            <div>
+              <div class="mission-stat-label">Built For</div>
+              <div class="mission-stat-value">Students, Faculty & Staff</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="about-content reveal">
+        <span class="section-eyebrow">About Us</span>
+        <h2>Built to Solve a Real Campus Problem</h2>
+        <p>Every semester, hundreds of items are lost across campus — left behind in canteens, libraries, labs, and hostels. Traditional notice boards and word-of-mouth aren't enough.</p>
+        <p>ReUnite replaces that chaos with a structured, digital platform where lost items are catalogued, verified, and reunited with their owners — all under transparent admin oversight.</p>
+        <p>Developed by MCA students at School of Management Sciences, this is a real project solving a real problem for thousands of campus members.</p>
+        <div class="feature-pills">
+          <span class="pill"><i class="bi bi-check2"></i> ASP.NET MVC</span>
+          <span class="pill"><i class="bi bi-check2"></i> SQL Server</span>
+          <span class="pill"><i class="bi bi-check2"></i> Bootstrap 5</span>
+          <span class="pill"><i class="bi bi-check2"></i> Razor Engine</span>
+          <span class="pill"><i class="bi bi-check2"></i> Entity Framework</span>
+          <span class="pill"><i class="bi bi-check2"></i> Role-Based Auth</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FAQ ═══════════════ -->
+<section class="faq-section" id="faq">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">FAQ</span>
+      <h2 class="section-title">Common Questions</h2>
+    </div>
+    <div class="faq-grid">
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">How do I claim a found item? <i class="bi bi-plus"></i></div>
+        <div class="faq-a">Click the "Claim / Enquire" button on any gallery card. An enquiry form will open — fill in your details and the admin team will contact you to verify ownership before handing over the item.</div>
+      </div>
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">How long does the process take? <i class="bi bi-plus"></i></div>
+        <div class="faq-a">Most items are listed within a few hours of being reported. Once you submit a claim, our admin team typically responds within 24 hours and coordinates the handover.</div>
+      </div>
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">What if my item isn't listed yet? <i class="bi bi-plus"></i></div>
+        <div class="faq-a">Submit a Lost Report using the form above. Your item will be listed in the gallery after admin review. You can also submit an Enquiry to let the team know you're actively looking.</div>
+      </div>
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">How is ownership verified? <i class="bi bi-plus"></i></div>
+        <div class="faq-a">Our admin team will ask you to describe identifying features of the item — color, brand, specific marks or stickers. This ensures items are returned only to their rightful owners.</div>
+      </div>
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">Can I report a found item too? <i class="bi bi-plus"></i></div>
+        <div class="faq-a">Absolutely! Use the Report form and describe what you found and where. You can hand the item to campus security or the admin office for safekeeping while we find the owner.</div>
+      </div>
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">Is my personal data safe? <i class="bi bi-plus"></i></div>
+        <div class="faq-a">Yes. Your contact details are only used by our admin team to coordinate item recovery. They are not displayed publicly and are never shared with third parties.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ ENQUIRY ═══════════════ -->
+<section class="enquiry-section" id="enquiry">
+  <div class="section-inner">
+    <div class="enquiry-layout">
+      <div class="enquiry-info reveal">
+        <span class="section-eyebrow">Contact</span>
+        <h2>Get in Touch</h2>
+        <p>Have a question or need help finding your item? Send us a message and our admin team will get back to you promptly.</p>
+        <div class="contact-card">
+          <div class="contact-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
+          <div>
+            <div class="contact-card-label">Location</div>
+            <div class="contact-card-value">Admin Office, Block A, Ground Floor</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-card-icon"><i class="bi bi-clock-fill"></i></div>
+          <div>
+            <div class="contact-card-label">Office Hours</div>
+            <div class="contact-card-value">Mon – Sat, 9:00 AM – 5:00 PM</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-card-icon"><i class="bi bi-envelope-fill"></i></div>
+          <div>
+            <div class="contact-card-label">Email</div>
+            <div class="contact-card-value">lostfound@sms.edu.in</div>
+          </div>
+        </div>
+      </div>
+      <div class="enquiry-form-card reveal">
+        <h3 style="font-family:'Syne',sans-serif;font-weight:800;margin-bottom:1.75rem">Send an Enquiry</h3>
+        <form onsubmit="handleEnquirySubmit(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label-custom">Full Name *</label>
+              <input type="text" class="form-control-custom" placeholder="Your name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label-custom">Email *</label>
+              <input type="email" class="form-control-custom" placeholder="your@email.com" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label-custom">Mobile No. *</label>
+              <input type="tel" class="form-control-custom" placeholder="+91 98765 43210" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label-custom">Subject *</label>
+              <input type="text" class="form-control-custom" placeholder="Lost ID Card / Found Laptop" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label-custom">Message *</label>
+            <textarea class="form-control-custom" rows="5" style="resize:vertical" placeholder="Describe your query in detail..." required></textarea>
+          </div>
+          <button type="submit" class="btn-primary-custom" style="width:100%;justify-content:center">
+            <i class="bi bi-send-fill"></i> Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">ReUnite <span class="dot" style="width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block;animation:pulse-dot 2s ease-in-out infinite"></span></div>
+        <p class="footer-tagline">A campus-wide digital lost & found platform built to reunite people with their belongings — securely and transparently.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul class="footer-links">
+          <li><a href="#home"><i class="bi bi-chevron-right"></i> Home</a></li>
+          <li><a href="#how"><i class="bi bi-chevron-right"></i> How It Works</a></li>
+          <li><a href="#gallery"><i class="bi bi-chevron-right"></i> Gallery</a></li>
+          <li><a href="#report"><i class="bi bi-chevron-right"></i> Report Item</a></li>
+          <li><a href="#announcements"><i class="bi bi-chevron-right"></i> Announcements</a></li>
+          <li><a href="#about"><i class="bi bi-chevron-right"></i> About</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Actions</h4>
+        <ul class="footer-links">
+          <li><a href="#report"><i class="bi bi-plus-circle"></i> Report Lost Item</a></li>
+          <li><a href="#gallery"><i class="bi bi-images"></i> Browse Gallery</a></li>
+          <li><a href="#enquiry"><i class="bi bi-envelope"></i> Send Enquiry</a></li>
+          <li><a href="/Admin/Login"><i class="bi bi-shield-lock"></i> Admin Login</a></li>
+          <li><a href="#faq"><i class="bi bi-question-circle"></i> FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 ReUnite · School of Management Sciences · Crafted with <span style="color:#ef4444">♥</span> by Byte Coders</span>
+      <span>Built with ASP.NET MVC · Bootstrap 5 · SQL Server</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════ CLAIM MODAL ═══════════════ -->
+<div class="modal-overlay" id="claimModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 class="modal-title">Claim / Enquire</h3>
+      <button class="modal-close" onclick="closeModal()"><i class="bi bi-x"></i></button>
+    </div>
+    <p style="color:var(--text-muted);margin-bottom:1.5rem;font-size:0.9rem">Fill in your details to enquire about this item. Admin will verify your ownership before handover.</p>
+    <form onsubmit="handleClaimSubmit(event)">
+      <div class="form-group">
+        <label class="form-label-custom">Your Name *</label>
+        <input type="text" class="form-control-custom" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label-custom">Contact Number *</label>
+        <input type="tel" class="form-control-custom" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label-custom">Message / Proof of Ownership *</label>
+        <textarea class="form-control-custom" rows="3" placeholder="Describe identifying features — color, brand, stickers, etc." required></textarea>
+      </div>
+      <button type="submit" class="btn-primary-custom" style="width:100%;justify-content:center">
+        <i class="bi bi-send-fill"></i> Submit Claim
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Scroll to top -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script>
+// ─── SAMPLE DATA ───
+const items = [
+  { name: "OnePlus Nord CE 3", category: "electronics", emoji: "📱", status: "lost", location: "Main Canteen", reporter: "Rahul S.", date: "Today" },
+  { name: "Blue Wildcraft Bag", category: "accessories", emoji: "🎒", status: "lost", location: "Auditorium Gate", reporter: "Priya M.", date: "Yesterday" },
+  { name: "Dell Laptop Charger", category: "electronics", emoji: "🔌", status: "found", location: "Block B Lab", reporter: "Admin", date: "2 days ago" },
+  { name: "Student ID Card", category: "academic", emoji: "💳", status: "found", location: "Block B Entrance", reporter: "Security", date: "2 days ago" },
+  { name: "Milton Water Bottle", category: "accessories", emoji: "🧴", status: "lost", location: "Library Floor 2", reporter: "Keshav D.", date: "3 days ago" },
+  { name: "Engineering Notebooks", category: "academic", emoji: "📚", status: "found", location: "Library Shelf", reporter: "Admin", date: "3 days ago" },
+  { name: "Boat Airdopes 141", category: "electronics", emoji: "🎧", status: "lost", location: "Hostel D Lounge", reporter: "Aman P.", date: "4 days ago" },
+  { name: "Room Keys (Hostel C)", category: "accessories", emoji: "🔑", status: "found", location: "Main Gate", reporter: "Security", date: "4 days ago" },
+  { name: "Parker Pen Set", category: "academic", emoji: "✒️", status: "lost", location: "Seminar Hall", reporter: "Devansh S.", date: "5 days ago" },
+];
+
+function renderGallery(filter = 'all') {
+  const grid = document.getElementById('galleryGrid');
+  const filtered = filter === 'all' ? items : items.filter(i => i.status === filter || i.category === filter);
+  grid.innerHTML = filtered.map(item => `
+    <div class="item-card">
+      <div class="item-card-header">
+        <span>${item.emoji}</span>
+        <span class="item-status">
+          <span class="fc-tag ${item.status === 'found' ? 'tag-found' : 'tag-lost'}">${item.status === 'found' ? 'Found' : 'Lost'}</span>
+        </span>
+      </div>
+      <div class="item-card-body">
+        <div class="item-name">${item.name}</div>
+        <div class="item-meta">
+          <span><i class="bi bi-geo-alt-fill"></i> ${item.location}</span>
+          <span><i class="bi bi-person-fill"></i> ${item.reporter}</span>
+          <span><i class="bi bi-calendar3"></i> ${item.date}</span>
+        </div>
+        <a href="#" class="btn-claim" onclick="openModal(event)">
+          <i class="bi bi-chat-dots-fill"></i> Claim / Enquire
+        </a>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterItems(filter, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGallery(filter);
+}
+
+renderGallery();
+
+// ─── MODAL ───
+function openModal(e) { e.preventDefault(); document.getElementById('claimModal').classList.add('open'); }
+function closeModal() { document.getElementById('claimModal').classList.remove('open'); }
+document.getElementById('claimModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+// ─── TOAST ───
+function showToast(msg) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+// ─── FORM HANDLERS ───
+function handleReportSubmit(e) {
+  e.preventDefault();
+  showToast('Report submitted! Admin will review shortly.');
+  e.target.reset();
+}
+function handleEnquirySubmit(e) {
+  e.preventDefault();
+  showToast('Enquiry sent! We\'ll contact you within 24 hours.');
+  e.target.reset();
+}
+function handleClaimSubmit(e) {
+  e.preventDefault();
+  showToast('Claim submitted! Admin will verify and contact you.');
+  closeModal();
+  e.target.reset();
+}
+
+// ─── FAQ ───
+function toggleFaq(el) { el.classList.toggle('open'); }
+
+// ─── NAVBAR SCROLL ───
+const navbar = document.getElementById('navbar');
+const scrollTopBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 50);
+  scrollTopBtn.classList.toggle('show', window.scrollY > 400);
+});
+
+// ─── MOBILE NAV ───
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+
+// ─── REVEAL ON SCROLL ───
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ─── ACTIVE NAV LINK ───
+const sections = document.querySelectorAll('section[id], div[id]');
+const navAnchors = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+  navAnchors.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
